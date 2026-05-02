@@ -32,7 +32,7 @@ app.post("/send", async (req, res) => {
         to: TO,
         type: "template",
         template: {
-          name: "medicine_dispenser",
+          name: "hello world",
           language: {
             code: "en_US"
           }
