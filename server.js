@@ -4,26 +4,35 @@ const axios = require("axios");
 const app = express();
 app.use(express.json());
 
-// 🔑 Replace these with YOUR values from Meta dashboard
-const TOKEN = "EAAd7bLllZB9QBRXeOPXP2FF4LwamIQNsMjppJYtZBNaWIZAAIXm8Q29wZAa4YGriZBoSPyAHCb3gh8MdAYn58e2r8UlHONa8Tn55w8Ti2xcRXihnz12L7drbwVEe4tGhRI2a8nTtanOzjgy0zKBSNUDZBVXiZAt5aUhnnEmUUS5UXhfxQtKehCZABUHn8XGdzZBtKZB2FQCeprJggYUVzBYtueUiaxL6hB4ojzlMe1JxhzBmmJ0vZADjFvDTY3ItrrrYqtskxUHY8CEfAoufLw9JyzhRoYq";
-const PHONE_NUMBER_ID = "1019496974590719";
+// 🔑 Environment variables
+const TOKEN = process.env.TOKEN;
+const PHONE_NUMBER_ID = process.env.PHONE_NUMBER_ID;
+const TO = process.env.TO;
 
-// 📱 Your verified WhatsApp number (NO + sign)
-const TO = "919405008289";
+// 🧪 Root route
+app.get("/", (req, res) => {
+  res.send("Server is running 🚀");
+});
 
+// 📩 WhatsApp send route
 app.post("/send", async (req, res) => {
   try {
-    console.log("📨 Sending WhatsApp message...");
+    console.log("🔥 /send route hit");
 
+    // 🚨 Safety check
+    if (!TOKEN || !PHONE_NUMBER_ID || !TO) {
+      return res.status(500).send("Missing environment variables");
+    }
+
+    // 📤 WhatsApp API call
     const response = await axios.post(
-      `https://graph.facebook.com/v18.0/${PHONE_NUMBER_ID}/messages`,
+      `https://graph.facebook.com/v19.0/${PHONE_NUMBER_ID}/messages`,
       {
         messaging_product: "whatsapp",
         to: TO,
-        type: "template",
-        template: {
-          name: "hello_world", // default working template
-          language: { code: "en_US" }
+        type: "text",
+        text: {
+          body: "💊 Medicine Reminder: Take your dose now!"
         }
       },
       {
@@ -34,27 +43,21 @@ app.post("/send", async (req, res) => {
       }
     );
 
-    console.log("✅ Message Sent:", response.data);
-    res.send(response.data);
+    console.log("✅ Message sent:", response.data);
 
-  } catch (err) {
-    console.error("❌ ERROR OCCURRED");
+    res.send("Message sent successfully 🚀");
+  } catch (error) {
+    console.error("❌ ERROR:", error.response?.data || error.message);
 
-    if (err.response) {
-      console.error("API ERROR:", err.response.data);
-      res.status(500).json(err.response.data);
-    } else {
-      console.error("UNKNOWN ERROR:", err.message);
-      res.status(500).json({ error: err.message });
-    }
+    res.status(500).json({
+      error: error.response?.data || error.message
+    });
   }
 });
 
-// Optional test route
-app.get("/", (req, res) => {
-  res.send("Server is running 🚀");
-});
+// 🌍 PORT for Render
+const PORT = process.env.PORT || 3000;
 
-app.listen(3000, () => {
-  console.log("🚀 Server running on http://localhost:3000");
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
 });
