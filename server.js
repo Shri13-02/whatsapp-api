@@ -14,25 +14,28 @@ app.get("/", (req, res) => {
   res.send("Server is running 🚀");
 });
 
-// 📩 WhatsApp send route
+// 📩 WhatsApp send route (TEMPLATE VERSION)
 app.post("/send", async (req, res) => {
   try {
     console.log("🔥 /send route hit");
 
-    // 🚨 Safety check
+    // 🚨 Check env variables
     if (!TOKEN || !PHONE_NUMBER_ID || !TO) {
       return res.status(500).send("Missing environment variables");
     }
 
-    // 📤 WhatsApp API call
+    // 📤 WhatsApp TEMPLATE message (IMPORTANT)
     const response = await axios.post(
       `https://graph.facebook.com/v19.0/${PHONE_NUMBER_ID}/messages`,
       {
         messaging_product: "whatsapp",
         to: TO,
-        type: "text",
-        text: {
-          body: "💊 Medicine Reminder: Take your dose now!"
+        type: "template",
+        template: {
+          name: "hello_world",
+          language: {
+            code: "en_US"
+          }
         }
       },
       {
